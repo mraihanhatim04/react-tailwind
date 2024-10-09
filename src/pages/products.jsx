@@ -76,33 +76,55 @@ const products = [
   },
 ];
 
+const email = localStorage.getItem("email");
 const ProductsPage = () => {
+  const handleLogout = () => {
+    localStorage.removeItem("email");
+    localStorage.removeItem("password");
+    window.location.href = "/login";
+  };
   return (
-    <div className="container flex flex-wrap mx-auto justify-center gap-4 p-4">
-      {products.map(({ id, image, name, description, price }) => (
-        <Card key={id} className="max-w-[350px]">
-          <CardHeader className="justify-center">
-            <Image src={image} width={280} />
-          </CardHeader>
-          <Divider />
-          <CardBody>
-            <h1 className="font-bold tracking-wider text-xl mb-2">{name}</h1>
-            <p className="font-serif">{description}</p>
-          </CardBody>
-          <Divider />
-          <CardFooter className="flex justify-between">
-            <p className="font-bold text-slate-700">${price}</p>
-            <Button
-              size="sm"
-              color="primary"
-              className="font-bold tracking-wider"
-            >
-              Add To Cart
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
-    </div>
+    <>
+      <div className="flex mb-5 justify-end h-14 bg-white shadow-2xl items-center p-4">
+        <div className="mr-32 flex gap-3">
+          <h1 className="text-md text-slate-500 mt-1">
+            Welcome, <span className="font-medium text-blue-700">{email}</span>
+          </h1>
+          <Button
+            onClick={handleLogout}
+            size="sm"
+            className="font-bold bg-blue-500 text-white"
+          >
+            Log Out
+          </Button>
+        </div>
+      </div>
+      <div className="container flex flex-wrap mx-auto justify-center gap-4 p-4">
+        {products.map(({ id, image, name, description, price }) => (
+          <Card key={id} className="max-w-[350px]">
+            <CardHeader className="justify-center">
+              <Image src={image} width={280} />
+            </CardHeader>
+            <Divider />
+            <CardBody>
+              <h1 className="font-bold tracking-wider text-xl mb-2">{name}</h1>
+              <p className="font-serif">{description}</p>
+            </CardBody>
+            <Divider />
+            <CardFooter className="flex justify-between">
+              <p className="font-bold text-slate-700">${price}</p>
+              <Button
+                size="sm"
+                color="primary"
+                className="font-bold tracking-wider"
+              >
+                Add To Cart
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </>
   );
 };
 
