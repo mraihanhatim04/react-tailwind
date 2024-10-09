@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
+
 const AuthLayouts = (props) => {
-  const { children, title } = props;
+  const { children, title, type } = props;
   return (
     <>
       {" "}
@@ -10,10 +12,27 @@ const AuthLayouts = (props) => {
             Welcome, please enter your details✨
           </p>
           {children}
+          <p className="mt-5 text-md font-serif text-slate-500 text-center">
+            {type === "login"
+              ? "Don't have an account? "
+              : "Already have an account? "}
+            {type === "login" && (
+              <Link
+                to="/register"
+                className="font-bold text-blue-500 underline"
+              >
+                Register
+              </Link>
+            )}
+            {type === "register" && (
+              <Link to="/login" className="font-bold text-blue-500 underline">
+                Login
+              </Link>
+            )}
+          </p>
         </div>
       </div>
     </>
   );
 };
-
 export default AuthLayouts;
