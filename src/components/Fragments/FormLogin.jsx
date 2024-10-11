@@ -7,7 +7,7 @@ const FormLogin = () => {
     localStorage.setItem("email", event.target.email.value);
     localStorage.setItem("password", event.target.password.value);
     alert("Login Success");
-    window.location.href = "/products";
+    window.location.href = "/home";
   };
   return (
     <>

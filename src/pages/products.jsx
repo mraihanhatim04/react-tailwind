@@ -8,7 +8,8 @@ import {
   Button,
 } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
-import CartProducts from "../components/Fragments/CartProducts";
+import MyNavbar from "../components/Fragments/MyNavbar";
+import InputSearch from "../components/Fragments/InputSearch";
 
 // Data produk
 const productsData = [
@@ -79,19 +80,12 @@ const productsData = [
 
 const ProductsPage = () => {
   const email = localStorage.getItem("email");
-  const handleLogOut = () => {
-    localStorage.removeItem("email");
-    localStorage.removeItem("password");
-    window.location.href = "/login";
-  };
 
-  // Load cart based on email from localStorage or start with an empty object
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem(`cart_${email}`);
     return savedCart ? JSON.parse(savedCart) : {};
   });
 
-  // Save cart to localStorage based on email whenever cart changes
   useEffect(() => {
     if (email) {
       localStorage.setItem(`cart_${email}`, JSON.stringify(cart));
@@ -99,88 +93,61 @@ const ProductsPage = () => {
   }, [cart, email]);
 
   const handleAddToCart = (id, name, price) => {
-    setCart((prev) => ({
-      ...prev,
-      [id]: { name, price, qty: (prev[id]?.qty || 0) + 1 },
-    }));
-  };
+    if (!id || !name || !price) {
+      console.error("handleAddToCart: invalid product data", {
+        id,
+        name,
+        price,
+      });
+      return;
+    }
 
-  const handleRemoveFromCart = (id) => {
     setCart((prev) => {
-      const updatedCart = { ...prev };
-      if (updatedCart[id]?.qty > 1) {
-        updatedCart[id].qty -= 1; // Kurangi qty jika masih ada lebih dari 1
-      } else {
-        delete updatedCart[id]; // Hapus produk dari cart jika qty = 1
-      }
-      return updatedCart;
+      const newProduct = { name, price, qty: (prev[id]?.qty || 0) + 1 };
+      return { ...prev, [id]: newProduct };
     });
   };
 
-  const total = Object.values(cart).reduce(
-    (acc, item) => acc + item.qty * item.price,
-    0
-  );
-
   return (
     <>
-      <div className="flex mb-5 justify-end h-14 bg-white shadow-2xl items-center p-4">
-        <div className="mr-32 flex gap-3">
-          <h1 className="text-md font-medium text-slate-500 mt-1">
-            Welcome, <span className="font-bold text-blue-700">{email}</span>
-          </h1>
-          <Button
-            onClick={handleLogOut}
-            size="sm"
-            className="font-bold bg-red-500 text-white"
-          >
-            Log Out
-          </Button>
-        </div>
-      </div>
-      <div className="container mx-auto justify-around flex gap-4 p-4">
-        <div className="w-1/2 flex flex-wrap gap-4">
-          {productsData.map(({ id, image, name, description, price }) => (
-            <Card key={id} className="max-w-[300px]">
-              <CardHeader className="justify-center">
-                <Image src={image} width={280} />
-              </CardHeader>
-              <Divider />
-              <CardBody>
-                <h1 className="font-bold tracking-wider text-xl mb-2">
-                  {name}
-                </h1>
-                <p className="font-serif">{description}</p>
-              </CardBody>
-              <Divider />
-              <CardFooter className="flex justify-between">
-                <p className="font-bold text-slate-700">
-                  Rp{" "}
-                  {price.toLocaleString("id-ID", {
-                    styles: "currency",
-                    currency: "IDR",
-                  })}
-                </p>
-                <Button
-                  size="sm"
-                  color="primary"
-                  className="font-bold tracking-wider"
-                  onClick={() => handleAddToCart(id, name, price)}
-                >
-                  Add To Cart
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-
-        <div className="w-1/2">
-          <CartProducts
-            cart={cart}
-            total={total}
-            onRemoveFromCart={handleRemoveFromCart}
-          />
-        </div>
+      <MyNavbar />
+      <InputSearch />
+      <div className="container mx-auto flex flex-wrap justify-center gap-4 p-4">
+        {productsData.map(({ id, image, name, description, price }) => (
+          <Card key={id} className="max-w-[300px]">
+            <CardHeader className="justify-center">
+              {image ? <Image src={image} width={280} /> : null}
+            </CardHeader>
+            <Divider />
+            <CardBody>
+              <h1 className="font-bold tracking-wider text-xl mb-2">
+                {name || "Unknown product name"}
+              </h1>
+              <p className="font-serif">
+                {description || "Unknown product description"}
+              </p>
+            </CardBody>
+            <Divider />
+            <CardFooter className="flex justify-between">
+              <p className="font-bold text-slate-700">
+                {price
+                  ? `Rp ${price.toLocaleString("id-ID", {
+                      styles: "currency",
+                      currency: "IDR",
+                    })}`
+                  : "Unknown product price"}
+              </p>
+              <Button
+                size="sm"
+                color="primary"
+                className="font-bold tracking-wider"
+                onClick={() => handleAddToCart(id, name, price)}
+              >
+                Add To Cart
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
       </div>
     </>
   );

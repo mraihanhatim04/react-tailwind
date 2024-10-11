@@ -13,31 +13,35 @@ import {
 } from "@nextui-org/react";
 import React from "react";
 
-const CartProducts = ({ cart, total, onRemoveFromCart }) => {
-  // Buat string deskripsi produk untuk WhatsApp
+const CartProducts = ({ cart = {}, total = 0, onRemoveFromCart }) => {
   const cartDescription = Object.values(cart)
     .map(
       (item) =>
-        `${item.qty}x ${item.name} - Rp${item.price.toLocaleString("id-ID")}`
+        `${item?.qty ?? 0}x ${item?.name ?? ""} - Rp${
+          item?.price?.toLocaleString("id-ID") ?? ""
+        }`
     )
     .join(", ");
 
-  // Fungsi untuk membuka WhatsApp dengan pesan otomatis
   const handleProceedToPayment = () => {
     const message = `Halo, saya ingin melakukan pembayaran untuk pesanan berikut: ${cartDescription}. Total: Rp${total.toLocaleString(
       "id-ID"
     )}.`;
-    const phoneNumber = "6281293034489"; // Nomor WhatsApp tujuan (ganti dengan nomor yang sesuai)
+    const phoneNumber = "6281293034489";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       message
     )}`;
 
-    // Buka WhatsApp Web atau Aplikasi WhatsApp
-    window.open(whatsappUrl, "_blank");
+    try {
+      window.open(whatsappUrl, "_blank");
+    } catch (error) {
+      console.error("Gagal membuka WhatsApp", error);
+    }
   };
+
   return (
     <>
-      <Card className="max-w-[700px]">
+      <Card className="max-w-full">
         <CardHeader className="justify-center bg-blue-500 text-white tracking-wider">
           <h1 className="text-xl font-bold text-center">My Cart Orders</h1>
         </CardHeader>
@@ -53,23 +57,23 @@ const CartProducts = ({ cart, total, onRemoveFromCart }) => {
             <TableBody>
               {Object.entries(cart).map(([id, item]) => (
                 <TableRow key={id}>
-                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item?.name ?? ""}</TableCell>
                   <TableCell>
-                    {item.price.toLocaleString("id-ID", {
+                    {item?.price?.toLocaleString("id-ID", {
                       styles: "currency",
                       currency: "IDR",
-                    })}
+                    }) ?? ""}
                   </TableCell>
-                  <TableCell>{item.qty}</TableCell>
+                  <TableCell>{item?.qty ?? 0}</TableCell>
                   <TableCell>
-                    {(item.qty * item.price).toLocaleString("id-ID", {
+                    {(item?.qty * item?.price)?.toLocaleString("id-ID", {
                       styles: "currency",
                       currency: "IDR",
-                    })}
+                    }) ?? ""}
                   </TableCell>
                   <TableCell>
                     <button
-                      onClick={() => onRemoveFromCart(id)}
+                      onClick={() => onRemoveFromCart?.(id)}
                       className="py-1 px-1 bg-white-500"
                     >
                       ❌
@@ -86,7 +90,7 @@ const CartProducts = ({ cart, total, onRemoveFromCart }) => {
             {total.toLocaleString("id-ID", {
               styles: "currency",
               currency: "IDR",
-            })}
+            }) ?? ""}
           </p>
           <Button
             onClick={handleProceedToPayment}

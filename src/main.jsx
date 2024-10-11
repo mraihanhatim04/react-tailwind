@@ -9,16 +9,18 @@ import ErrorPage from "./pages/404.jsx";
 import LoginPage from "./pages/login.jsx";
 import RegisterPage from "./pages/register.jsx";
 import ProductsPage from "./pages/products.jsx";
+import HomePage from "./pages/home.jsx";
+import CartPage from "./pages/cart.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <div>Hallo World</div>,
+    element: <LoginPage />,
     errorElement: <ErrorPage />,
   },
   {
-    path: "/login",
-    element: <LoginPage />,
+    path: "/home",
+    element: <HomePage />,
   },
   {
     path: "/register",
@@ -27,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: "/products",
     element: <ProductsPage />,
+  },
+  {
+    path: "/cart",
+    element: <CartPage />,
   },
 ]);
 
