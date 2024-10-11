@@ -7,7 +7,7 @@ import {
   Image,
   Button,
 } from "@nextui-org/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CartProducts from "../components/Fragments/CartProducts";
 
 // Data produk
@@ -78,8 +78,25 @@ const productsData = [
 ];
 
 const ProductsPage = () => {
-  const [cart, setCart] = useState({});
   const email = localStorage.getItem("email");
+  const handleLogOut = () => {
+    localStorage.removeItem("email");
+    localStorage.removeItem("password");
+    window.location.href = "/login";
+  };
+
+  // Load cart based on email from localStorage or start with an empty object
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem(`cart_${email}`);
+    return savedCart ? JSON.parse(savedCart) : {};
+  });
+
+  // Save cart to localStorage based on email whenever cart changes
+  useEffect(() => {
+    if (email) {
+      localStorage.setItem(`cart_${email}`, JSON.stringify(cart));
+    }
+  }, [cart, email]);
 
   const handleAddToCart = (id, name, price) => {
     setCart((prev) => ({
@@ -88,10 +105,16 @@ const ProductsPage = () => {
     }));
   };
 
-  const handleLogOut = () => {
-    localStorage.removeItem("email");
-    localStorage.removeItem("password");
-    window.location.href = "/login";
+  const handleRemoveFromCart = (id) => {
+    setCart((prev) => {
+      const updatedCart = { ...prev };
+      if (updatedCart[id]?.qty > 1) {
+        updatedCart[id].qty -= 1; // Kurangi qty jika masih ada lebih dari 1
+      } else {
+        delete updatedCart[id]; // Hapus produk dari cart jika qty = 1
+      }
+      return updatedCart;
+    });
   };
 
   const total = Object.values(cart).reduce(
@@ -115,7 +138,7 @@ const ProductsPage = () => {
           </Button>
         </div>
       </div>
-      <div className="container mx-auto justify-center flex gap-4 p-4">
+      <div className="container mx-auto justify-around flex gap-4 p-4">
         <div className="w-1/2 flex flex-wrap gap-4">
           {productsData.map(({ id, image, name, description, price }) => (
             <Card key={id} className="max-w-[300px]">
@@ -151,8 +174,12 @@ const ProductsPage = () => {
           ))}
         </div>
 
-        <div className="w-1/3">
-          <CartProducts cart={cart} total={total} />
+        <div className="w-1/2">
+          <CartProducts
+            cart={cart}
+            total={total}
+            onRemoveFromCart={handleRemoveFromCart}
+          />
         </div>
       </div>
     </>
