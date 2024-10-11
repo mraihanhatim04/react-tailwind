@@ -90,9 +90,10 @@ const CartProducts = ({ cart, total, onRemoveFromCart }) => {
           </p>
           <Button
             onClick={handleProceedToPayment}
-            className="bg-red-500 text-white font-semibold "
+            className="bg-blue-500 text-white font-semibold"
+            disabled={total === 0} // Tombol dinonaktifkan jika total 0
           >
-            Check Out
+            {total === 0 ? "Your cart is empty" : "Check Out"}
           </Button>
         </CardFooter>
       </Card>

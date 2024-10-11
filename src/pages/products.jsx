@@ -126,13 +126,13 @@ const ProductsPage = () => {
     <>
       <div className="flex mb-5 justify-end h-14 bg-white shadow-2xl items-center p-4">
         <div className="mr-32 flex gap-3">
-          <h1 className="text-md font-medium text-slate-500">
+          <h1 className="text-md font-medium text-slate-500 mt-1">
             Welcome, <span className="font-bold text-blue-700">{email}</span>
           </h1>
           <Button
             onClick={handleLogOut}
             size="sm"
-            className="font-bold bg-blue-500 text-white"
+            className="font-bold bg-red-500 text-white"
           >
             Log Out
           </Button>
