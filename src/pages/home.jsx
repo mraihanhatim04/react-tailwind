@@ -1,16 +1,16 @@
+import { Image } from "@nextui-org/react";
 import MyNavbar from "../components/Fragments/MyNavbar";
 
 const HomePage = () => {
   return (
     <>
-      <div className="">
-        <MyNavbar />
-        <div>
-          <h1 className="text-3xl font-semibold text-slate-500 flex justify-center mt-52">
-            Home Page
-          </h1>
+      <MyNavbar />
+
+      <section class="bg-center bg-no-repeat bg-[url('public/images/jumbotron.jpeg')]">
+        <div class="px-4 mx-auto max-w-screen-xl text-center py-36 lg:py-64">
+          <h1 class="mb-4 font-extrabold tracking-tight leading-none text-white "></h1>
         </div>
-      </div>
+      </section>
     </>
   );
 };

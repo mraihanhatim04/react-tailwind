@@ -14,30 +14,17 @@ import {
 import React from "react";
 
 const CartProducts = ({ cart = {}, total = 0, onRemoveFromCart }) => {
-  const cartDescription = Object.values(cart)
-    .map(
-      (item) =>
-        `${item?.qty ?? 0}x ${item?.name ?? ""} - Rp${
-          item?.price?.toLocaleString("id-ID") ?? ""
-        }`
-    )
-    .join(", ");
-
-  const handleProceedToPayment = () => {
-    const message = `Halo, saya ingin melakukan pembayaran untuk pesanan berikut: ${cartDescription}. Total: Rp${total.toLocaleString(
-      "id-ID"
-    )}.`;
-    const phoneNumber = "6281293034489";
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-      message
-    )}`;
-
-    try {
-      window.open(whatsappUrl, "_blank");
-    } catch (error) {
-      console.error("Gagal membuka WhatsApp", error);
-    }
-  };
+  const items = Object.entries(cart).map(([id, item]) => ({
+    id,
+    name: item?.name ?? "",
+    price: item?.price ?? 0,
+    qty: item?.qty ?? 0,
+  }));
+  const totalItems = items.length;
+  const totalPayment = items.reduce(
+    (acc, item) => acc + item.price * item.qty,
+    0
+  );
 
   return (
     <>
@@ -55,25 +42,25 @@ const CartProducts = ({ cart = {}, total = 0, onRemoveFromCart }) => {
               <TableColumn>Action</TableColumn>
             </TableHeader>
             <TableBody>
-              {Object.entries(cart).map(([id, item]) => (
-                <TableRow key={id}>
-                  <TableCell>{item?.name ?? ""}</TableCell>
+              {items.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.name}</TableCell>
                   <TableCell>
-                    {item?.price?.toLocaleString("id-ID", {
+                    {item.price.toLocaleString("id-ID", {
                       styles: "currency",
                       currency: "IDR",
-                    }) ?? ""}
+                    })}
                   </TableCell>
-                  <TableCell>{item?.qty ?? 0}</TableCell>
+                  <TableCell>{item.qty}</TableCell>
                   <TableCell>
-                    {(item?.qty * item?.price)?.toLocaleString("id-ID", {
+                    {(item.price * item.qty).toLocaleString("id-ID", {
                       styles: "currency",
                       currency: "IDR",
-                    }) ?? ""}
+                    })}
                   </TableCell>
                   <TableCell>
                     <button
-                      onClick={() => onRemoveFromCart?.(id)}
+                      onClick={() => onRemoveFromCart(item.id)}
                       className="py-1 px-1 bg-white-500"
                     >
                       ❌
@@ -87,17 +74,33 @@ const CartProducts = ({ cart = {}, total = 0, onRemoveFromCart }) => {
         <CardFooter className="flex justify-between px-6">
           <p className="font-semibold text-slate-700">Total Payment</p>
           <p className="font-bold underline">
-            {total.toLocaleString("id-ID", {
+            {totalPayment.toLocaleString("id-ID", {
               styles: "currency",
               currency: "IDR",
-            }) ?? ""}
+            })}
           </p>
           <Button
-            onClick={handleProceedToPayment}
+            onClick={() => {
+              const message = `Halo, saya ingin melakukan pembayaran untuk pesanan berikut: ${items
+                .map((item) => `${item.qty}x ${item.name}`)
+                .join(", ")}. Total: Rp${totalPayment.toLocaleString(
+                "id-ID"
+              )}.`;
+              const phoneNumber = "6281293034489";
+              const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+                message
+              )}`;
+
+              try {
+                window.open(whatsappUrl, "_blank");
+              } catch (error) {
+                console.error("Gagal membuka WhatsApp", error);
+              }
+            }}
             className="bg-blue-500 text-white font-semibold"
-            disabled={total === 0} // Tombol dinonaktifkan jika total 0
+            disabled={totalItems === 0} // Tombol dinonaktifkan jika tidak ada item di cart
           >
-            {total === 0 ? "Your cart is empty" : "Check Out"}
+            {totalItems === 0 ? "Your cart is empty" : "Check Out"}
           </Button>
         </CardFooter>
       </Card>

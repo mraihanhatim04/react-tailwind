@@ -105,18 +105,20 @@ const ProductsPage = () => {
     setFilteredProducts(results);
   }, [searchTerm]); // Filter produk setiap kali `searchTerm` berubah
 
-  const handleAddToCart = (id, name, price) => {
-    if (!id || !name || !price) {
-      console.error("handleAddToCart: invalid product data", {
-        id,
-        name,
-        price,
-      });
+  const handleAddToCart = (id) => {
+    if (!id) {
+      console.error("handleAddToCart: invalid product id", { id });
+      return;
+    }
+
+    const product = productsData.find((p) => p.id === id);
+    if (!product) {
+      console.error("handleAddToCart: product not found", { id });
       return;
     }
 
     setCart((prev) => {
-      const newProduct = { name, price, qty: (prev[id]?.qty || 0) + 1 };
+      const newProduct = { ...product, qty: (prev[id]?.qty || 0) + 1 };
       return { ...prev, [id]: newProduct };
     });
   };
@@ -130,16 +132,14 @@ const ProductsPage = () => {
           filteredProducts.map(({ id, image, name, description, price }) => (
             <Card key={id} className="max-w-[300px]">
               <CardHeader className="justify-center">
-                {image ? <Image src={image} width={280} /> : null}
+                {image ? <Image isZoomed src={image} width={280} /> : null}
               </CardHeader>
               <Divider />
               <CardBody>
                 <h1 className="font-bold tracking-wider text-xl mb-2">
-                  {name || "Unknown product name"}
+                  {name}
                 </h1>
-                <p className="font-serif">
-                  {description || "Unknown product description"}
-                </p>
+                <p className="font-serif">{description}</p>
               </CardBody>
               <Divider />
               <CardFooter className="flex justify-between">
@@ -155,7 +155,7 @@ const ProductsPage = () => {
                   size="sm"
                   color="primary"
                   className="font-bold tracking-wider"
-                  onClick={() => handleAddToCart(id, name, price)}
+                  onClick={() => handleAddToCart(id)}
                 >
                   Add To Cart
                 </Button>
@@ -163,7 +163,7 @@ const ProductsPage = () => {
             </Card>
           ))
         ) : (
-          <p>No products found</p> // Tampilkan jika tidak ada produk yang sesuai
+          <p className="font-bold text-red-600 text-xl">No products found</p> // Tampilkan jika tidak ada produk yang sesuai
         )}
       </div>
     </>

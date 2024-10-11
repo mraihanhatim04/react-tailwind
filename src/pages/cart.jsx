@@ -17,12 +17,20 @@ const CartPage = () => {
   const handleRemoveFromCart = (id) => {
     setCart((prev) => {
       const updatedCart = { ...prev };
-      if (updatedCart[id] && updatedCart[id].qty > 1) {
-        updatedCart[id].qty -= 1;
-      } else if (updatedCart[id]) {
-        delete updatedCart[id];
+
+      // Cek apakah produk ada di cart
+      if (updatedCart[id]) {
+        // Kurangi kuantitas produk
+        if (updatedCart[id].qty > 1) {
+          updatedCart[id].qty -= 1;
+        } else {
+          // Jika kuantitas 1, hapus produk dari cart
+          delete updatedCart[id];
+        }
+
+        // Simpan perubahan ke localStorage
+        localStorage.setItem(`cart_${email}`, JSON.stringify(updatedCart));
       }
-      localStorage.setItem(`cart_${email}`, JSON.stringify(updatedCart));
       return updatedCart;
     });
   };
