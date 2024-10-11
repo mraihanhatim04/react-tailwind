@@ -86,11 +86,24 @@ const ProductsPage = () => {
     return savedCart ? JSON.parse(savedCart) : {};
   });
 
+  const [searchTerm, setSearchTerm] = useState(""); // State untuk kata kunci pencarian
+  const [filteredProducts, setFilteredProducts] = useState(productsData); // State untuk produk yang difilter
+
   useEffect(() => {
     if (email) {
       localStorage.setItem(`cart_${email}`, JSON.stringify(cart));
     }
   }, [cart, email]);
+
+  useEffect(() => {
+    // Filter produk berdasarkan nama atau deskripsi
+    const results = productsData.filter(
+      (product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProducts(results);
+  }, [searchTerm]); // Filter produk setiap kali `searchTerm` berubah
 
   const handleAddToCart = (id, name, price) => {
     if (!id || !name || !price) {
@@ -111,43 +124,47 @@ const ProductsPage = () => {
   return (
     <>
       <MyNavbar />
-      <InputSearch />
+      <InputSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <div className="container mx-auto flex flex-wrap justify-center gap-4 p-4">
-        {productsData.map(({ id, image, name, description, price }) => (
-          <Card key={id} className="max-w-[300px]">
-            <CardHeader className="justify-center">
-              {image ? <Image src={image} width={280} /> : null}
-            </CardHeader>
-            <Divider />
-            <CardBody>
-              <h1 className="font-bold tracking-wider text-xl mb-2">
-                {name || "Unknown product name"}
-              </h1>
-              <p className="font-serif">
-                {description || "Unknown product description"}
-              </p>
-            </CardBody>
-            <Divider />
-            <CardFooter className="flex justify-between">
-              <p className="font-bold text-slate-700">
-                {price
-                  ? `Rp ${price.toLocaleString("id-ID", {
-                      styles: "currency",
-                      currency: "IDR",
-                    })}`
-                  : "Unknown product price"}
-              </p>
-              <Button
-                size="sm"
-                color="primary"
-                className="font-bold tracking-wider"
-                onClick={() => handleAddToCart(id, name, price)}
-              >
-                Add To Cart
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map(({ id, image, name, description, price }) => (
+            <Card key={id} className="max-w-[300px]">
+              <CardHeader className="justify-center">
+                {image ? <Image src={image} width={280} /> : null}
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                <h1 className="font-bold tracking-wider text-xl mb-2">
+                  {name || "Unknown product name"}
+                </h1>
+                <p className="font-serif">
+                  {description || "Unknown product description"}
+                </p>
+              </CardBody>
+              <Divider />
+              <CardFooter className="flex justify-between">
+                <p className="font-bold text-slate-700">
+                  {price
+                    ? `Rp ${price.toLocaleString("id-ID", {
+                        styles: "currency",
+                        currency: "IDR",
+                      })}`
+                    : "Unknown product price"}
+                </p>
+                <Button
+                  size="sm"
+                  color="primary"
+                  className="font-bold tracking-wider"
+                  onClick={() => handleAddToCart(id, name, price)}
+                >
+                  Add To Cart
+                </Button>
+              </CardFooter>
+            </Card>
+          ))
+        ) : (
+          <p>No products found</p> // Tampilkan jika tidak ada produk yang sesuai
+        )}
       </div>
     </>
   );
