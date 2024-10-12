@@ -14,17 +14,24 @@ import {
 import React from "react";
 
 const CartProducts = ({ cart = {}, total = 0, onRemoveFromCart }) => {
-  const items = Object.entries(cart).map(([id, item]) => ({
+  const cartItems = Object.entries(cart).map(([id, item]) => ({
     id,
-    name: item?.name ?? "",
+    title: item?.title ?? "",
     price: item?.price ?? 0,
     qty: item?.qty ?? 0,
   }));
-  const totalItems = items.length;
-  const totalPayment = items.reduce(
+
+  const totalItems = cartItems.length;
+  const totalPayment = cartItems.reduce(
     (acc, item) => acc + item.price * item.qty,
     0
   );
+
+  const handleRemoveItem = (itemId) => {
+    if (onRemoveFromCart) {
+      onRemoveFromCart(itemId); // Pastikan hanya dipanggil sekali
+    }
+  };
 
   return (
     <>
@@ -42,29 +49,29 @@ const CartProducts = ({ cart = {}, total = 0, onRemoveFromCart }) => {
               <TableColumn>Action</TableColumn>
             </TableHeader>
             <TableBody>
-              {items.map((item) => (
+              {cartItems.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.title}</TableCell>
                   <TableCell>
-                    {item.price.toLocaleString("id-ID", {
-                      styles: "currency",
-                      currency: "IDR",
+                    {item.price.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
                     })}
                   </TableCell>
                   <TableCell>{item.qty}</TableCell>
                   <TableCell>
-                    {(item.price * item.qty).toLocaleString("id-ID", {
-                      styles: "currency",
-                      currency: "IDR",
+                    {(item.price * item.qty).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
                     })}
                   </TableCell>
                   <TableCell>
-                    <button
-                      onClick={() => onRemoveFromCart(item.id)}
-                      className="py-1 px-1 bg-white-500"
+                    <Button
+                      onClick={() => handleRemoveItem(item.id)}
+                      className="p-2 font-bold bg-red-500 text-white rounded-full"
                     >
-                      ❌
-                    </button>
+                      X
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -74,28 +81,22 @@ const CartProducts = ({ cart = {}, total = 0, onRemoveFromCart }) => {
         <CardFooter className="flex justify-between px-6">
           <p className="font-semibold text-slate-700">Total Payment</p>
           <p className="font-bold underline">
-            {totalPayment.toLocaleString("id-ID", {
-              styles: "currency",
-              currency: "IDR",
+            {totalPayment.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
             })}
           </p>
           <Button
             onClick={() => {
-              const message = `Halo, saya ingin melakukan pembayaran untuk pesanan berikut: ${items
-                .map((item) => `${item.qty}x ${item.name}`)
-                .join(", ")}. Total: Rp${totalPayment.toLocaleString(
-                "id-ID"
-              )}.`;
+              const message = `Halo, saya ingin melakukan pembayaran untuk pesanan berikut: ${cartItems
+                .map((item) => `${item.qty}x ${item.title}`)
+                .join(", ")}. Total: $${totalPayment.toLocaleString("en-US")}.`;
               const phoneNumber = "6281293034489";
               const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
                 message
               )}`;
 
-              try {
-                window.open(whatsappUrl, "_blank");
-              } catch (error) {
-                console.error("Gagal membuka WhatsApp", error);
-              }
+              window.open(whatsappUrl, "_blank");
             }}
             className="bg-blue-500 text-white font-semibold"
             disabled={totalItems === 0} // Tombol dinonaktifkan jika tidak ada item di cart

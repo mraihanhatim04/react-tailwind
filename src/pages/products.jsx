@@ -6,121 +6,72 @@ import {
   Divider,
   Image,
   Button,
+  Input,
 } from "@nextui-org/react";
 import React, { useEffect, useState } from "react";
 import MyNavbar from "../components/Fragments/MyNavbar";
 import InputSearch from "../components/Fragments/InputSearch";
-
-// Data produk
-const productsData = [
-  {
-    id: 1,
-    image: "/images/1.jpg",
-    name: "Adidas Ultraboost",
-    description: "Sepatu lari yang populer dengan teknologi Boost.",
-    price: 2500000,
-  },
-  {
-    id: 2,
-    image: "/images/2.jpg",
-    name: "Nike Air Force 1",
-    description:
-      "Sepatu basket yang ikonik dengan desain yang sangat populer di kalangan muda.",
-    price: 1500000,
-  },
-  {
-    id: 3,
-    image: "/images/3.jpg",
-    name: "Converse Chuck Taylor All Star",
-    description:
-      "Sepatu kanvas yang sangat populer di kalangan anak muda dan musisi.",
-    price: 500000,
-  },
-  {
-    id: 4,
-    image: "/images/4.jpg",
-    name: "Reebok Classic Leather",
-    description:
-      "Sepatu olahraga yang sangat populer di kalangan olahragawan dan fashionista.",
-    price: 1200000,
-  },
-  {
-    id: 5,
-    image: "/images/5.jpg",
-    name: "Vans Old Skool",
-    description:
-      "Sepatu skateboarding klasik dengan desain side stripe yang ikonik, populer di kalangan skateboarder dan anak muda.",
-    price: 700000,
-  },
-  {
-    id: 6,
-    image: "/images/6.jpg",
-    name: "Balenciaga Triple S",
-    description:
-      "Sepatu chunky yang mewah dan stylish, sering tampil di runway dan tren mode high-fashion.",
-    price: 9500000,
-  },
-  {
-    id: 7,
-    image: "/images/7.jpg",
-    name: "New Balance 550",
-    description:
-      "Sepatu retro dengan desain yang dibangkitkan kembali, menjadi favorit di kalangan penggemar mode streetwear.",
-    price: 1100000,
-  },
-  {
-    id: 8,
-    image: "/images/8.jpg",
-    name: "Puma Suede Classic",
-    description:
-      "Sepatu kasual dengan desain bersih dan tekstur suede yang halus, cocok untuk gaya urban yang simpel.",
-    price: 6500000,
-  },
-];
+import { getProducts } from "../services/product.service";
 
 const ProductsPage = () => {
-  const email = localStorage.getItem("email");
+  const userEmail = localStorage.getItem("email");
 
-  const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem(`cart_${email}`);
+  const [userCart, setUserCart] = useState(() => {
+    const savedCart = localStorage.getItem(`cart_${userEmail}`);
     return savedCart ? JSON.parse(savedCart) : {};
   });
 
-  const [searchTerm, setSearchTerm] = useState(""); // State untuk kata kunci pencarian
-  const [filteredProducts, setFilteredProducts] = useState(productsData); // State untuk produk yang difilter
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedQty, setSelectedQty] = useState({});
 
   useEffect(() => {
-    if (email) {
-      localStorage.setItem(`cart_${email}`, JSON.stringify(cart));
+    getProducts((data) => {
+      setFilteredProducts(data);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (userEmail) {
+      localStorage.setItem(`cart_${userEmail}`, JSON.stringify(userCart));
     }
-  }, [cart, email]);
+  }, [userCart, userEmail]);
 
   useEffect(() => {
-    // Filter produk berdasarkan nama atau deskripsi
-    const results = productsData.filter(
+    const results = filteredProducts.filter(
       (product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase())
+        (product.name &&
+          product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (product.description &&
+          product.description.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredProducts(results);
-  }, [searchTerm]); // Filter produk setiap kali `searchTerm` berubah
+  }, [searchTerm]);
 
-  const handleAddToCart = (id) => {
-    if (!id) {
-      console.error("handleAddToCart: invalid product id", { id });
-      return;
-    }
+  const handleAddToCart = (productId) => {
+    const quantity = selectedQty[productId] || 1; // Menggunakan qty yang dipilih atau default 1
+    if (!productId || quantity <= 0) return;
 
-    const product = productsData.find((p) => p.id === id);
-    if (!product) {
-      console.error("handleAddToCart: product not found", { id });
-      return;
-    }
+    const product = filteredProducts.find((p) => p.id === productId);
+    if (!product) return;
 
-    setCart((prev) => {
-      const newProduct = { ...product, qty: (prev[id]?.qty || 0) + 1 };
-      return { ...prev, [id]: newProduct };
+    setUserCart((prev) => {
+      const newProduct = {
+        ...product,
+        qty: (prev[productId]?.qty || 0) + quantity,
+      };
+      return { ...prev, [productId]: newProduct };
     });
+
+    // Reset nilai qty untuk produk yang baru ditambahkan
+    setSelectedQty((prev) => ({ ...prev, [productId]: 1 }));
+  };
+
+  const handleQtyChange = (productId, value) => {
+    setSelectedQty((prevQty) => ({
+      ...prevQty,
+      [productId]: Number(value), // Pastikan value adalah number
+    }));
   };
 
   return (
@@ -130,9 +81,11 @@ const ProductsPage = () => {
       <div className="container mx-auto flex flex-wrap justify-center gap-4 p-4">
         {filteredProducts.length > 0 ? (
           filteredProducts.map(({ id, image, name, description, price }) => (
-            <Card key={id} className="max-w-[300px]">
+            <Card key={id} className="max-w-[350px]">
               <CardHeader className="justify-center">
-                {image ? <Image isZoomed src={image} width={280} /> : null}
+                {image ? (
+                  <Image isZoomed src={image} height={200} width={380} />
+                ) : null}
               </CardHeader>
               <Divider />
               <CardBody>
@@ -143,27 +96,39 @@ const ProductsPage = () => {
               </CardBody>
               <Divider />
               <CardFooter className="flex justify-between">
-                <p className="font-bold text-slate-700">
-                  {price
-                    ? `Rp ${price.toLocaleString("id-ID", {
-                        styles: "currency",
-                        currency: "IDR",
-                      })}`
-                    : "Unknown product price"}
-                </p>
-                <Button
-                  size="sm"
-                  color="primary"
-                  className="font-bold tracking-wider"
-                  onClick={() => handleAddToCart(id)}
-                >
-                  Add To Cart
-                </Button>
+                <div>
+                  <p className="font-bold text-slate-700">
+                    {price
+                      ? `${price.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                        })}`
+                      : "Unknown product price"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min="1"
+                    value={selectedQty[id] || 1}
+                    onChange={(e) => handleQtyChange(id, e.target.value)}
+                    className="max-w-[80px]"
+                    width="20px"
+                  />
+                  <Button
+                    size="sm"
+                    color="primary"
+                    className="font-bold tracking-wider"
+                    onClick={() => handleAddToCart(id)}
+                  >
+                    Add To Cart
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           ))
         ) : (
-          <p className="font-bold text-red-600 text-xl">No products found</p> // Tampilkan jika tidak ada produk yang sesuai
+          <p className="font-bold text-red-600 text-xl">No products found</p>
         )}
       </div>
     </>
