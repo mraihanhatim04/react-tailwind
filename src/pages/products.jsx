@@ -90,9 +90,9 @@ const ProductsPage = () => {
               <Divider />
               <CardBody>
                 <h1 className="font-bold tracking-wider text-xl mb-2">
-                  {title}
+                  {title.substring(0, 20)}
                 </h1>
-                <p className="font-serif">{description}</p>
+                <p className="font-serif">{description.substring(0, 150)}</p>
               </CardBody>
               <Divider />
               <CardFooter className="flex justify-between">
