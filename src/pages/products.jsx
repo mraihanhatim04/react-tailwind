@@ -40,8 +40,8 @@ const ProductsPage = () => {
   useEffect(() => {
     const results = filteredProducts.filter(
       (product) =>
-        (product.name &&
-          product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (product.title &&
+          product.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (product.description &&
           product.description.toLowerCase().includes(searchTerm.toLowerCase()))
     );
@@ -80,7 +80,7 @@ const ProductsPage = () => {
       <InputSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <div className="container mx-auto flex flex-wrap justify-center gap-4 p-4">
         {filteredProducts.length > 0 ? (
-          filteredProducts.map(({ id, image, name, description, price }) => (
+          filteredProducts.map(({ id, image, title, description, price }) => (
             <Card key={id} className="max-w-[350px]">
               <CardHeader className="justify-center">
                 {image ? (
@@ -90,7 +90,7 @@ const ProductsPage = () => {
               <Divider />
               <CardBody>
                 <h1 className="font-bold tracking-wider text-xl mb-2">
-                  {name}
+                  {title}
                 </h1>
                 <p className="font-serif">{description}</p>
               </CardBody>
