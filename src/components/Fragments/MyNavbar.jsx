@@ -22,11 +22,7 @@ const MyNavbar = () => {
       <Navbar className="p-2">
         <NavbarBrand>
           <Link to="/home">
-            <img
-              className="rounded-full w-36"
-              src="/public/images/logo.png"
-              alt="logo"
-            />
+            <h1 className="font-bold text-2xl text-sky-500">Land Commerce</h1>
           </Link>
         </NavbarBrand>
         <NavbarContent className="hidden sm:flex gap-4" justify="center">
