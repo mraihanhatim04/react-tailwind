@@ -1,11 +1,22 @@
+import Button from "./components/Button";
+import Navbar from "./components/Navbar";
+import Jumbotron from "./components/Jumbotron";
+
 function App() {
   return (
     <>
-      <div>
-        <h1 className="text-3xl font-bold text-center mt-24 text-gray-800">
-          Hello, Tailwind CSS!
-        </h1>
-      </div>
+      <Navbar />
+
+      <Jumbotron
+        title="I'm built using React Tailwind!"
+        subtitle="Explore modern UI components with beautiful animations and responsive design"
+        accent="blue"
+      >
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 flex-wrap">
+          <Button variant="primary">Explore</Button>
+          <Button variant="secondary">Secondary</Button>
+        </div>
+      </Jumbotron>
     </>
   );
 }
